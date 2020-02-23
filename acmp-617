@@ -1,0 +1,138 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+const int N=1e4; 
+int c[N];
+
+string kpytr(string a,string b){
+    memset(c,0,N);
+    string ans = "";
+	for(int i=0;i<a.size();i++)
+        for(int j=0;j<b.size();j++){
+            c[i+j] += (a[a.size() - i - 1]-48)*(b[b.size() - j - 1]-48);
+            c[i+j+1]+=c[i+j]/10;
+            c[i+j]%=10; 
+        }
+    for(int i=N-1,showed=0;i>=0;i--)
+        if(showed || !i || c[i])
+            ans += char(c[i]+48), showed=1; 
+    return ans;
+}
+
+
+string ll_str(ll a){
+	if(!a) return "0";
+	string k="";
+	while(a)
+		k = char(a%10+'0') + k, a /= 10;
+	return k;
+}
+
+
+string sum(string a, string b){
+	if(a.size() > b.size()) swap(a,b);
+	int x = b.size() - a.size();
+	string k="";
+	while (x --) a = "0" + a;
+	int p = 0 , q = 0;
+	for(int i=a.size()-1; i>=0; i--){
+		q = (a[i] + b[i] - 96 + p)%10;
+		p = (a[i] + b[i] - 96 + p)/10;
+		k = char(q + 48) + k;
+	}
+	if(p) k = "1" + k;
+	return k;
+}
+
+string ayirma(string a, string b){
+	int t = a.size() - b.size();
+	if(a == b) return "0";
+	while(t --) b = '0' + b;
+	string ans ="";
+	int r = 0;
+	for(int i=a.size()-1; i>=0; i--){
+		t = a[i] - b[i] - r;
+		r = (t < 0);
+		if(t<0) t+= 10;
+		ans = char(t+48) + ans; 
+	}
+	for( int i = 0; ;i ++){
+		if(ans[i]!='0'){
+			ans = ans.substr(i,ans.size());
+			break;
+		}
+	}
+	return ans;
+	
+}
+
+
+string kp(string a, ll n){
+	if (n == 0) return "0";
+	ll r = 0 , q=0;
+	string ans;
+	for(int i=a.size()-1; i>=0; i --){
+		r = ((a[i] - '0') * n + q) % 10;
+		q = ((a[i] - '0') * n + q) / 10;
+		ans = char(r+'0') + ans;
+	}
+	if(q)  ans = ll_str(q) + ans;
+	return ans;
+}
+
+
+string C(ll n, ll k){
+	if(n < k || n < 0 || k < 0) return "0";
+	else{
+		ll a[k] , b[k];
+		for(int i=0; i<k; i++){
+			a[i] = i+1;
+			b[i] = n - i;
+		}
+		ll r;
+		string ans = "1";
+		for(int i=0; i<k; i++){
+			for(int j=0; j<k; j++){
+				r = __gcd(a[j] , b[i]);
+				a[j] /= r;
+				b[i] /= r;	
+			}
+			ans = kp(ans, b[i]);
+		}
+		return ans;
+	}
+}
+
+string d[101][11][11];
+string f(ll N , ll a , ll b){
+	if(d[N][a][b].size()) return d[N][a][b];
+	if(N > a*b || N < a || N < b ){
+		d[N][a][b] = "0";
+		return "0";
+	}
+	string A = C(a*b , N);
+	for(ll x = 1; x <= a; x ++){
+		for(ll y = 1; y <= b; y++){
+			if( x == a && y == b) break;
+			A =ayirma(A,  kpytr( kpytr(C(a , x) ,C(b,y)) , f(N ,x,y))); 
+		}
+	}
+	d[N][a][b] = A;
+	return A; 
+}
+int main(){
+	ll n,m,w ,b;
+	string  a = "0";
+	cin >> n >> m >> w >> b;
+	for(ll x = 1; x <= n; x ++){
+		for(ll y = 1; y <= m; y ++){
+			string t ;
+			t = kpytr(C(n,x) , C(m,y));
+			t = kpytr(t , C((n-x)*(m-y) , b));
+			t = kpytr(t , f(w,x,y));
+			a = sum(a , t);
+		}
+	} 
+	cout << a;
+}
