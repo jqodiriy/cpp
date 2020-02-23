@@ -1,0 +1,64 @@
+#include<iostream>
+using namespace std;
+typedef long long ll;
+ll f(ll a){
+    ll k = 1;
+    while( k < a ) k <<= 1;
+    return k;
+}
+string Q(ll a){
+    if(!a) return "0";
+    string k="";
+    while(a)
+        k = char(a%10+'0') + k, a /= 10;
+    return k;
+}
+ 
+string K(string a, ll n){
+    if (n == 0) return "0";
+    ll r = 0 , q=0;
+    string A;
+    for(int i=a.size()-1; i>=0; i --){
+        r = ((a[i] - 48) * n + q) % 10;
+        q = ((a[i] - 48) * n + q) / 10;
+        A = char(r+48) + A;
+    }
+    if(q)  A = Q(q) + A;
+    return A;
+}
+string S(string a, string b){
+    if(a.size() > b.size()) swap(a,b);
+    int x = b.size() - a.size() , p = 0 , q = 0;
+    string k="";
+    while (x --) a = "0" + a;
+    for(int i=a.size()-1; i>=0; i--){
+        q = (a[i] + b[i] - 96 + p)%10;
+        p = (a[i] + b[i] - 96 + p)/10;
+        k = char(q + 48) + k;
+    }
+    if(p) k = "1" + k;
+    return k;
+}
+ 
+ 
+string F(ll a  , ll b){
+    if(a < b) swap(a , b);
+    ll k = f(a);
+    string A;
+    if(a == k) return K ( Q(k*(k-1)/2) , b);
+    if(b > f(a) / 2) {
+        A = K(Q(k *(k-1) / 2) ,a + b - k);
+        A = S(A , F(k - a , k - b));
+    }
+    else {
+        k/=2;
+        A = K(Q(k*(k-1) / 2) , b);
+        A = S(A , S(F(a-k,b) , K(Q((a-k)*b),k))); 
+    }
+    return A;
+}
+ main(){
+    ll a , b;
+    cin >> a >> b;
+    cout << F(a+1 , b+1);
+}
